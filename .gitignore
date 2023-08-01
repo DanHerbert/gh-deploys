@@ -1,0 +1,5 @@
+/env/
+/build/
+/gh_deploys.egg-info/
+/gh_deploys/__pycache__/
+/gh_deploys/config.yaml
