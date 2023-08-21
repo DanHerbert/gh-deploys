@@ -1,0 +1,8 @@
+root_path: '/something'
+log_level: DEBUG
+secret: 'your_secret'
+projects:
+  -
+    repo_name: 'User/repo-name'
+    deploy_branch: 'main'
+    command: '/absolute/path/to/command.sh'
