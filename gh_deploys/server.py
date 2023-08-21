@@ -1,42 +1,80 @@
 """App to handle Github webhooks."""
 
 import logging
+import shlex
+import subprocess
 
-from github_webhook import Webhook
 from flask import Flask, request
+from flask.logging import default_handler
+from github_webhook import Webhook
+
 from .config import get_config
+
 
 config = get_config()
 app = Flask(__name__)
-app.logger.setLevel(logging.getLevelName(config['log_level']))
-webhook = Webhook(app, endpoint=f'{config["root_path"]}/postreceive')
+app.logger.setLevel(config.log_level)
+app.logger.info(config.root_path)
+
 webhookLogger = logging.getLogger('webhook')
-webhookLogger.setLevel(logging.getLevelName(config['log_level']))
+webhookLogger.setLevel(app.logger.getEffectiveLevel())
+webhookLogger.addHandler(default_handler)
+
+webhook = Webhook(app, endpoint=f'{config.root_path}/postreceive')
+
+def find_project_match(repo_name):
+    """Look for matching project in the config."""
+    for proj in config.projects:
+        if proj.repo_name == repo_name:
+            return proj
+    return None
 
 @app.route("/")
-@app.route(config["root_path"])
-@app.route(f'{config["root_path"]}/')
+@app.route(config.root_path)
+@app.route(f'{config.root_path}/')
 def root_path_handler():
     """Handle requests to root page to show proof of life in testing."""
-    app.logger.info(f'Handling {request.url}')
+    app.logger.info(f'Root path request {request.url}')
     return "It works!"
 
 @app.errorhandler(404)
 def page_not_found():
     """Custom 404 to make diagnosing bad routes easier."""
-    app.logger.info(f'Handling {request.url}')
+    app.logger.info(f'Not found request {request.url}')
     return "Not found!"
 
 @webhook.hook(event_type="push")
 def on_push(data):
     """Handle Github push events."""
-    app.logger.info(f'Handling {request.url}')
-    app.logger.info(f'Push to {data["repository"]["full_name"]} with {data["ref"]}')
+    repo_name = data["repository"]["full_name"]
+    push_ref = data["ref"]
+    app.logger.info(f'Push to {repo_name} with {push_ref}')
+    project = find_project_match(repo_name)
+    if project is not None:
+        if project.deploy_branch == push_ref:
+            app.logger.debug(project.command)
+            result = subprocess.run(shlex.split(project.command),
+                    capture_output=True,
+                    text=True,
+                    timeout=180,
+                    stderr=subprocess.STDOUT,
+                    check=False)
+            if result.returncode != 0:
+                app.logger.error(f'Command failed for {repo_name} on '
+                                 f'{push_ref} with output:\n{result.stdout}')
+            else:
+                app.logger.info(f'Successfully ran command for {repo_name} on '
+                                f'{push_ref} with the output:\n{result.stdout}')
+        else:
+            app.logger.info(f'Doing nothing. Pushed ref ({push_ref}) is '
+                            f'not the desired ref ({project.deploy_branch})')
+    else:
+        app.logger.warn(f'No project capable of handing repo: {repo_name}')
 
 @webhook.hook(event_type="ping")
 def on_ping():
     """Handle Github ping events."""
-    app.logger.info(f'Handling {request.url}')
+    app.logger.debug(f'Handling {request.url}')
     app.logger.info('Got ping request')
 
 # This only happens if running the script directly. Flask/gunicorn ignore this.
