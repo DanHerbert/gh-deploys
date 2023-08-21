@@ -14,7 +14,6 @@ from .config import get_config
 config = get_config()
 app = Flask(__name__)
 app.logger.setLevel(config.log_level)
-app.logger.info(config.root_path)
 
 webhookLogger = logging.getLogger('webhook')
 webhookLogger.setLevel(app.logger.getEffectiveLevel())
@@ -58,7 +57,6 @@ def on_push(data):
                     capture_output=True,
                     text=True,
                     timeout=180,
-                    stderr=subprocess.STDOUT,
                     check=False)
             if result.returncode != 0:
                 app.logger.error(f'Command failed for {repo_name} on '
