@@ -51,7 +51,7 @@ def on_push(data):
     app.logger.info(f'Push to {repo_name} with {push_ref}')
     project = find_project_match(repo_name)
     if project is not None:
-        if project.deploy_branch == push_ref:
+        if f'refs/head/{project.deploy_branch}' == push_ref:
             app.logger.debug(project.command)
             result = subprocess.run(shlex.split(project.command),
                     capture_output=True,
