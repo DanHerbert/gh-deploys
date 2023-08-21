@@ -54,7 +54,8 @@ def on_push(data):
         if desired_ref == pushed_ref:
             app.logger.debug(project.command)
             result = subprocess.run(shlex.split(project.command),
-                    capture_output=True,
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
                     text=True,
                     timeout=180,
                     check=False)
