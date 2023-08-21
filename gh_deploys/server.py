@@ -47,11 +47,12 @@ def page_not_found():
 def on_push(data):
     """Handle Github push events."""
     repo_name = data["repository"]["full_name"]
-    push_ref = data["ref"]
-    app.logger.info(f'Push to {repo_name} with {push_ref}')
+    pushed_ref = data["ref"]
+    app.logger.info(f'Push to {repo_name} with {pushed_ref}')
     project = find_project_match(repo_name)
     if project is not None:
-        if f'refs/head/{project.deploy_branch}' == push_ref:
+        desired_ref = f'refs/heads/{project.deploy_branch}'
+        if desired_ref == pushed_ref:
             app.logger.debug(project.command)
             result = subprocess.run(shlex.split(project.command),
                     capture_output=True,
@@ -61,13 +62,13 @@ def on_push(data):
                     check=False)
             if result.returncode != 0:
                 app.logger.error(f'Command failed for {repo_name} on '
-                                 f'{push_ref} with output:\n{result.stdout}')
+                                 f'{pushed_ref} with output:\n{result.stdout}')
             else:
                 app.logger.info(f'Successfully ran command for {repo_name} on '
-                                f'{push_ref} with the output:\n{result.stdout}')
+                                f'{pushed_ref} with the output:\n{result.stdout}')
         else:
-            app.logger.info(f'Doing nothing. Pushed ref ({push_ref}) is '
-                            f'not the desired ref ({project.deploy_branch})')
+            app.logger.info(f'Doing nothing. Pushed ref ({pushed_ref}) is '
+                            f'not the desired ref ({desired_ref})')
     else:
         app.logger.warn(f'No project capable of handing repo: {repo_name}')
 
