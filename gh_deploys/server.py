@@ -60,11 +60,13 @@ def on_push(data):
                     timeout=180,
                     check=False)
             if result.returncode != 0:
+                app.logger.warn(f'Command failure output:{result.stdout}')
                 app.logger.error(f'Command failed for {repo_name} on '
-                                 f'{pushed_ref} with output:\n{result.stdout}')
+                                 f'{pushed_ref}')
             else:
+                app.logger.info(f'Command success output:\n{result.stdout}')
                 app.logger.info(f'Successfully ran command for {repo_name} on '
-                                f'{pushed_ref} with the output:\n{result.stdout}')
+                                f'{pushed_ref}')
         else:
             app.logger.info(f'Doing nothing. Pushed ref ({pushed_ref}) is '
                             f'not the desired ref ({desired_ref})')
