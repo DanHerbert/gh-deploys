@@ -21,6 +21,7 @@ webhookLogger.addHandler(default_handler)
 
 webhook = Webhook(app, endpoint=f'{config.root_path}/postreceive')
 
+
 def find_project_match(repo_name):
     """Look for matching project in the config."""
     for proj in config.projects:
@@ -28,25 +29,28 @@ def find_project_match(repo_name):
             return proj
     return None
 
-@app.route("/")
+
+@app.route('/')
 @app.route(config.root_path)
 @app.route(f'{config.root_path}/')
 def root_path_handler():
     """Handle requests to root page to show proof of life in testing."""
     app.logger.info(f'Root path request {request.url}')
-    return "It works!"
+    return 'It works!'
+
 
 @app.errorhandler(404)
 def page_not_found():
     """Custom 404 to make diagnosing bad routes easier."""
     app.logger.info(f'Not found request {request.url}')
-    return "Not found!"
+    return 'Not found!'
 
-@webhook.hook(event_type="push")
+
+@webhook.hook(event_type='push')
 def on_push(data):
     """Handle Github push events."""
-    repo_name = data["repository"]["full_name"]
-    pushed_ref = data["ref"]
+    repo_name = data['repository']['full_name']
+    pushed_ref = data['ref']
     app.logger.info(f'Push to {repo_name} with {pushed_ref}')
     project = find_project_match(repo_name)
     if project is not None:
@@ -54,11 +58,11 @@ def on_push(data):
         if desired_ref == pushed_ref:
             app.logger.debug(project.command)
             result = subprocess.run(shlex.split(project.command),
-                    stdout=subprocess.PIPE,
-                    stderr=subprocess.STDOUT,
-                    text=True,
-                    timeout=180,
-                    check=False)
+                                    stdout=subprocess.PIPE,
+                                    stderr=subprocess.STDOUT,
+                                    text=True,
+                                    timeout=180,
+                                    check=False)
             if result.returncode != 0:
                 app.logger.warn(f'Command failure output:{result.stdout}')
                 app.logger.error(f'Command failed for {repo_name} on '
@@ -73,14 +77,16 @@ def on_push(data):
     else:
         app.logger.warn(f'No project capable of handing repo: {repo_name}')
 
-@webhook.hook(event_type="ping")
+
+@webhook.hook(event_type='ping')
 def on_ping():
     """Handle Github ping events."""
     app.logger.debug(f'Handling {request.url}')
     app.logger.info('Got ping request')
 
-# This only happens if running the script directly. Flask/gunicorn ignore this.
-if __name__ == "__main__":
-    app.run(host="0.0.0.0",
+
+# This only happens if running the script directly. Flask/gunicorn will ignore.
+if __name__ == '__main__':
+    app.run(host='0.0.0.0',
             port=config['listen_port'],
             debug=config['debug_mode'])
