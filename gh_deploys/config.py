@@ -7,8 +7,6 @@ import yaml
 SCRIPT_PATH = os.path.dirname(os.path.abspath(__file__))
 CONFIG_PATH = os.path.join(SCRIPT_PATH, '../config/', 'config.yaml')
 
-# TODO Define config class and parse into it.
-# TODO Define project class.
 
 @dataclass
 class Project:
