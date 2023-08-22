@@ -1,0 +1,10 @@
+[Unit]
+Description=Deploys based on Github webhooks
+After=network.target nss-lookup.target
+
+[Service]
+ExecStart=/home/dan/code/gh-deploys/server_scripts/run_server.sh 2>&1
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
