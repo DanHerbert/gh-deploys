@@ -4,7 +4,7 @@ import logging
 import shlex
 import subprocess
 
-from flask import Flask, request
+from flask import Flask, abort, request
 from flask.logging import default_handler
 from github_webhook import Webhook
 
@@ -67,6 +67,7 @@ def on_push(data):
                 app.logger.warn(f'Command failure output:{result.stdout}')
                 app.logger.error(f'Command failed for {repo_name} on '
                                  f'{pushed_ref}')
+                abort(500, 'Hook action failed')
             else:
                 app.logger.info(f'Command success output:\n{result.stdout}')
                 app.logger.info(f'Successfully ran command for {repo_name} on '
@@ -76,6 +77,7 @@ def on_push(data):
                             f'not the desired ref ({desired_ref})')
     else:
         app.logger.warn(f'No project capable of handing repo: {repo_name}')
+        abort(500, 'Unrecognized repository')
 
 
 @webhook.hook(event_type='ping')
