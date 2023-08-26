@@ -7,4 +7,5 @@ projects:
   -
     repo_name: 'User/repo-name'
     deploy_branch: 'main'
-    command: '/absolute/path/to/command.sh'
+    commands:
+      - '/absolute/path/to/command.sh'

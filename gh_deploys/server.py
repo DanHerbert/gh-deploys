@@ -56,22 +56,26 @@ def on_push(data):
     if project is not None:
         desired_ref = f'refs/heads/{project.deploy_branch}'
         if desired_ref == pushed_ref:
-            app.logger.debug(project.command)
-            result = subprocess.run(shlex.split(project.command),
-                                    stdout=subprocess.PIPE,
-                                    stderr=subprocess.STDOUT,
-                                    text=True,
-                                    timeout=180,
-                                    check=False)
-            if result.returncode != 0:
-                app.logger.warn(f'Command failure output:{result.stdout}')
-                app.logger.error(f'Command failed for {repo_name} on '
-                                 f'{pushed_ref}')
-                abort(500, 'Hook action failed')
-            else:
-                app.logger.info(f'Command success output:\n{result.stdout}')
-                app.logger.info(f'Successfully ran command for {repo_name} on '
-                                f'{pushed_ref}')
+            for cmd in project.commands:
+                app.logger.debug('Running configured command: ')
+                app.logger.debug(cmd)
+                result = subprocess.run(shlex.split(cmd),
+                                        stdout=subprocess.PIPE,
+                                        stderr=subprocess.STDOUT,
+                                        text=True,
+                                        timeout=180,
+                                        check=False)
+                if result.returncode != 0:
+                    app.logger.warn(
+                        f'Command failure output:\n{result.stdout}')
+                    app.logger.error(f'Command failed for {repo_name} on '
+                                     f'{pushed_ref}')
+                    abort(500, 'Hook action failed')
+                else:
+                    app.logger.info(
+                        f'Command success output:\n{result.stdout}')
+                    app.logger.info(f'Successfully ran command for {repo_name} '
+                                    f'on {pushed_ref}')
         else:
             app.logger.info(f'Doing nothing. Pushed ref ({pushed_ref}) is '
                             f'not the desired ref ({desired_ref})')
@@ -91,7 +95,6 @@ def on_ping(data):
         app.logger.info('Config has project ready for pushes.')
     else:
         app.logger.warn(f'No project exists in config for {repo_name}')
-
 
 
 # This only happens if running the script directly. Flask/gunicorn will ignore.
