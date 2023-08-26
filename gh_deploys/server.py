@@ -11,28 +11,28 @@ from github_webhook import Webhook
 from .config import get_config
 
 
-config = get_config()
+STARTUP_CONFIG = get_config()
 app = Flask(__name__)
-app.logger.setLevel(config.log_level)
+app.logger.setLevel(STARTUP_CONFIG.log_level)
 
 webhookLogger = logging.getLogger('webhook')
 webhookLogger.setLevel(app.logger.getEffectiveLevel())
 webhookLogger.addHandler(default_handler)
 
-webhook = Webhook(app, endpoint=f'{config.root_path}/postreceive')
+webhook = Webhook(app, endpoint=f'{STARTUP_CONFIG.root_path}/postreceive')
 
 
 def find_project_match(repo_name):
     """Look for matching project in the config."""
-    for proj in config.projects:
+    for proj in get_config().projects:
         if proj.repo_name == repo_name:
             return proj
     return None
 
 
 @app.route('/')
-@app.route(config.root_path)
-@app.route(f'{config.root_path}/')
+@app.route(STARTUP_CONFIG.root_path)
+@app.route(f'{STARTUP_CONFIG.root_path}/')
 def root_path_handler():
     """Handle requests to root page to show proof of life in testing."""
     app.logger.info(f'Root path request {request.url}')
@@ -81,7 +81,7 @@ def on_push(data):
 
 
 @webhook.hook(event_type='ping')
-def on_ping():
+def on_ping(data):
     """Handle Github ping events."""
     app.logger.debug(f'Handling {request.url}')
     app.logger.info('Got ping request')
@@ -90,5 +90,5 @@ def on_ping():
 # This only happens if running the script directly. Flask/gunicorn will ignore.
 if __name__ == '__main__':
     app.run(host='0.0.0.0',
-            port=config['listen_port'],
-            debug=config['debug_mode'])
+            port=STARTUP_CONFIG.listen_port,
+            debug=STARTUP_CONFIG.debug_mode)

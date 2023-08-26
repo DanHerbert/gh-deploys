@@ -18,10 +18,15 @@ class Project:
 
 @dataclass
 class Config:
-    def __init__(self, root_path, log_level, secret, projects):
+
+    def __init__(  # pylint: disable=too-many-arguments
+            self, root_path, log_level, secret, listen_port, debug_mode,
+            projects):
         self.root_path = root_path
         self.log_level = log_level
         self.secret = secret
+        self.listen_port = listen_port
+        self.debug_mode = debug_mode
         self.projects = projects
 
 
@@ -39,4 +44,6 @@ def get_config():
             conf_dict['root_path'],
             logging.getLevelName(conf_dict['log_level']),
             conf_dict['secret'],
+            conf_dict['listen_port'],
+            conf_dict['debug_mode'],
             projects)
