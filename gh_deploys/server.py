@@ -83,8 +83,15 @@ def on_push(data):
 @webhook.hook(event_type='ping')
 def on_ping(data):
     """Handle Github ping events."""
-    app.logger.debug(f'Handling {request.url}')
-    app.logger.info('Got ping request')
+    repo_name = data['repository']['full_name']
+    app.logger.info(f'Received ping for {repo_name}')
+    project = find_project_match(repo_name)
+
+    if project is not None:
+        app.logger.info('Config has project ready for pushes.')
+    else:
+        app.logger.warn(f'No project exists in config for {repo_name}')
+
 
 
 # This only happens if running the script directly. Flask/gunicorn will ignore.
