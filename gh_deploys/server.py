@@ -97,5 +97,5 @@ def on_ping(data):
 # This only happens if running the script directly. Flask/gunicorn will ignore.
 if __name__ == '__main__':
     app.run(host='0.0.0.0',
-            port=STARTUP_CONFIG.listen_port,
+            port=STARTUP_CONFIG.debug_listen_port,
             debug=STARTUP_CONFIG.debug_mode)
