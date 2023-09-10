@@ -56,36 +56,33 @@ def on_push(data):
     if project is not None:
         desired_ref = f"refs/heads/{project.deploy_branch}"
         if desired_ref == pushed_ref:
+            failures = []
             for cmd in project.commands:
                 app.logger.debug("Running configured command: ")
                 app.logger.debug(cmd)
-                try:
-                    result = subprocess.run(
-                        shlex.split(cmd),
-                        stdout=subprocess.PIPE,
-                        stderr=subprocess.STDOUT,
-                        text=True,
-                        timeout=180,
-                        check=False,
+                result = subprocess.run(
+                    shlex.split(cmd),
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.STDOUT,
+                    text=True,
+                    timeout=180,
+                    check=False,
+                )
+                if result.returncode != 0:
+                    failures += {
+                        "warning": f"Command failure output:\n{result.stdout}",
+                        "error": f"Command failed for {repo_name} on " f"{pushed_ref}",
+                    }
+                else:
+                    app.logger.info(f"Command success output:\n{result.stdout}")
+                    app.logger.info(
+                        f"Successfully ran command for {repo_name} " f"on {pushed_ref}"
                     )
-                    if result.returncode != 0:
-                        app.logger.warn(f"Command failure output:\n{result.stdout}")
-                        app.logger.error(
-                            f"Command failed for {repo_name} on " f"{pushed_ref}"
-                        )
-                        abort(500, "Hook action failed")
-                    else:
-                        app.logger.info(f"Command success output:\n{result.stdout}")
-                        app.logger.info(
-                            f"Successfully ran command for {repo_name} "
-                            f"on {pushed_ref}"
-                        )
-                except subprocess.SubprocessError:
-                    app.logger.warn(f"Command failure output:\n{result.stdout}")
-                    app.logger.error(
-                        f"Command failed for {repo_name} on " f"{pushed_ref}"
-                    )
-                    abort(500, "Hook action failed")
+            if len(failures) > 0:
+                for fail in failures:
+                    app.logger.warn(fail["warning"])
+                    app.logger.error(fail["error"])
+                abort(500, "Hook action failed.")
         else:
             app.logger.info(
                 f"Doing nothing. Pushed ref ({pushed_ref}) is "
