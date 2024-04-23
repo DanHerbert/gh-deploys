@@ -69,20 +69,22 @@ def on_push(data):
                     check=False,
                 )
                 if result.returncode != 0:
-                    failures += {
+                    failures.append({
                         "warning": f"Command failure output:\n{result.stdout}",
                         "error": f"Command failed for {repo_name} on " f"{pushed_ref}",
-                    }
+                    })
                 else:
                     app.logger.info(f"Command success output:\n{result.stdout}")
                     app.logger.info(
                         f"Successfully ran command for {repo_name} " f"on {pushed_ref}"
                     )
             if len(failures) > 0:
-                for fail in failures:
-                    app.logger.warn(fail["warning"])
-                    app.logger.error(fail["error"])
-                abort(500, "Hook action failed.")
+                try:
+                    for fail in failures:
+                        app.logger.warn(fail["warning"])
+                        app.logger.error(fail["error"])
+                finally:
+                    abort(500, "Hook action failed.")
         else:
             app.logger.info(
                 f"Doing nothing. Pushed ref ({pushed_ref}) is "
