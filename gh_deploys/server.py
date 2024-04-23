@@ -3,6 +3,7 @@
 import logging
 import shlex
 import subprocess
+import os
 
 from flask import Flask, abort, request
 from flask.logging import default_handler
@@ -62,6 +63,7 @@ def on_push(data):
                 app.logger.debug(cmd)
                 result = subprocess.run(
                     shlex.split(cmd),
+                    cwd=os.path.dirname(cmd),
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
