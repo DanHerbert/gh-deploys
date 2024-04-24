@@ -39,7 +39,7 @@ def get_config():
         for project_dict in conf_dict['projects']:
             projects.append(Project(
                 project_dict['repo_name'],
-                project_dict['repo_path'],
+                project_dic.get('repo_path'),
                 project_dict['deploy_branch'],
                 project_dict['commands']))
         return Config(
