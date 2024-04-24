@@ -6,6 +6,7 @@ secret: 'your_secret'
 projects:
   -
     repo_name: 'User/repo-name'
+    repo_path: '/absolute/path/to/repo'
     deploy_branch: 'main'
     commands:
       - '/absolute/path/to/command.sh'

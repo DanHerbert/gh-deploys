@@ -10,8 +10,9 @@ CONFIG_PATH = os.path.join(SCRIPT_PATH, '../config/', 'config.yaml')
 
 @dataclass
 class Project:
-    def __init__(self, repo_name, deploy_branch, commands):
+    def __init__(self, repo_name, repo_path, deploy_branch, commands):
         self.repo_name = repo_name
+        self.repo_path = repo_path
         self.deploy_branch = deploy_branch
         self.commands = commands
 
@@ -38,6 +39,7 @@ def get_config():
         for project_dict in conf_dict['projects']:
             projects.append(Project(
                 project_dict['repo_name'],
+                project_dict['repo_path'],
                 project_dict['deploy_branch'],
                 project_dict['commands']))
         return Config(

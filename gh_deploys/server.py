@@ -63,7 +63,7 @@ def on_push(data):
                 app.logger.debug(cmd)
                 result = subprocess.run(
                     shlex.split(cmd),
-                    cwd=os.path.dirname(cmd),
+                    cwd=project.repo_path,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
                     text=True,
