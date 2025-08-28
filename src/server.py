@@ -60,7 +60,7 @@ def on_push(data):
             failures = []
             for cmd in project.commands:
                 app.logger.debug("Running configured command: ")
-                app.logger.debug(cmd)
+                app.logger.debug(f'cmd: {cmd.cmd}, user: {cmd.user}')
                 cwd = os.path.dirname(cmd.cmd)
                 if project.repo_path is not None:
                     cwd = project.repo_path
