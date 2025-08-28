@@ -1,5 +1,5 @@
-/env/
+/venv/
 /build/
-/gh_deploys.egg-info/
-/gh_deploys/__pycache__/
+/src/*.egg-info/
+/src/__pycache__/
 /config/config.yaml

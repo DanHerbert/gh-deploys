@@ -1,0 +1,20 @@
+[project]
+version = "0.2.0"
+name = "gh-deploys"
+description = "Deployments based on Github Repo changes."
+authors = [{name = "Dan Herbert", email = "gh-deploy-dan@hrbrt.co"}]
+readme = "README.md"
+license = "Apache-2.0"
+license-files = ["LICENSE.txt"]
+dependencies = [
+  "github-webhook==1.0.*",
+  "pyyaml==6.0.*",
+  "gunicorn==23.0.*",
+]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+]
+
+[project.urls]
+repository = "https://github.com/DanHerbert/gh-deploys"
