@@ -64,8 +64,11 @@ def on_push(data):
                 cwd = os.path.dirname(cmd)
                 if project.repo_path is not None:
                     cwd = project.repo_path
+                cmd_args = shlex.split(cmd)
+                if project.user is not None:
+                    cmd_args = ['su', '-', project.user] + cmd_args
                 result = subprocess.run(
-                    shlex.split(cmd),
+                    cmd_args,
                     cwd=cwd,
                     stdout=subprocess.PIPE,
                     stderr=subprocess.STDOUT,
