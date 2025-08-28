@@ -61,12 +61,11 @@ def on_push(data):
             for cmd in project.commands:
                 app.logger.debug("Running configured command: ")
                 app.logger.debug(cmd)
-                cwd = os.path.dirname(cmd)
+                cwd = os.path.dirname(cmd.cmd)
                 if project.repo_path is not None:
                     cwd = project.repo_path
-                cmd_args = shlex.split(cmd)
-                if project.user is not None:
-                    cmd_args = ['su', '-', project.user] + cmd_args
+                cmd_args = shlex.split(cmd.cmd)
+                cmd_args = ['su', '-', cmd.user] + cmd_args
                 result = subprocess.run(
                     cmd_args,
                     cwd=cwd,
