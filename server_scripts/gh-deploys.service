@@ -4,7 +4,7 @@ After=network.target nss-lookup.target
 
 [Service]
 ExecStart=/home/dan/code/gh-deploys/server_scripts/run_server.sh 2>&1
-Restart=always
+Restart=on-success
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=default.target
