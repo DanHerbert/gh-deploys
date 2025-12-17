@@ -65,7 +65,7 @@ def on_push(data):
                 if project.repo_path is not None:
                     cwd = project.repo_path
                 cmd_args = shlex.split(cmd.cmd)
-                cmd_args = ['su', '-', cmd.user] + cmd_args
+                cmd_args = ['sudo', '--preserve-env=PATH', '-u', cmd.user] + cmd_args
                 result = subprocess.run(
                     cmd_args,
                     cwd=cwd,
