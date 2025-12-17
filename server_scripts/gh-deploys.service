@@ -3,7 +3,7 @@ Description=Deploys based on Github webhooks
 After=network.target nss-lookup.target
 
 [Service]
-ExecStart=/home/dan/code/gh-deploys/server_scripts/run_server.sh 2>&1
+ExecStart=/bin/sh -c "exec $PROJECT_ROOT/server_scripts/run_server.sh 2>&1"
 Restart=on-success
 
 [Install]
